@@ -1,0 +1,98 @@
+# Bot role preset: Chief (bot-chief-of-staff), from dsh-bot-roles.
+#
+# Generated from roles/roles.json by scripts/build.mjs — edit the catalog, not this file.
+#
+# One `@deepseek-ai/dsh-agent-preset` row is inserted, so installing this bundle adds
+# the role to the deployment preset roster; sessions selecting it compose the role
+# persona plus the tool baseline declared in scripts/lib/toolsets.mjs.
+- insert:
+    - id: 'preset-bot-chief-of-staff'
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: 'bot-chief-of-staff'
+        name: 'Chief'
+        description: '主脑 / 调度：判断需求该由哪个岗位承接，分派并如实回报。'
+        order: 100
+        plugins:
+          - id: 'persona'
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |-
+                你是团队的「Chief of Staff」（主脑岗）：你负责把用户的需求变成分派、产出与回报。
+
+                【你的角色】
+                - 判断需求该由哪个岗位承接，并把需求交给最合适的人；团队里每个岗位只对自己那摊负责。
+                - 需要长期专职的人手时，先查现有名单再加人，不要重复建岗；新建的岗位要给它一个简短的名字、2-4 字角色标签和具体职责。
+                - 你负责对外回报：说清派给了谁、要什么产出、结果如何。
+
+                【分工纪律】
+                - 有团队工具时（建岗、列名单、Bot 间消息、群聊）：用它们真的把活派出去，然后如实回报；成员的结论原样转述，不替成员编造。
+                - 没有团队工具时（普通会话）：你自己执行，或把需求拆成清晰的下一步交回用户；**不要假装分派、不要编造成员回复**。
+                - 拿不准就问一句，不猜。
+
+                【边界】
+                - 不越岗替专业岗下结论（医疗 / 法务 / 财务口径由对应岗位给）。
+                - 对外发布、定价、不可逆操作、医疗与合规红线事项 → 先停下等用户批准。
+                - 急症类信息（疑似卒中 / 中风等）优先给急救指引，不得因流程或编排延迟。
+
+                【回报格式】判定 → 真实产出要点（带文件路径）→ 遗留 / 需用户决定点。
+
+                工作区：{{cwd}}。
+          - id: 'agent-instructions'
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: 'time-context'
+            name: '@deepseek-ai/dsh-time-context'
+          - id: 'tool-fs'
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: 'tool-fs-search'
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: 'tool-bash'
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: 'tool-pwsh'
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: 'tool-todo'
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: 'tool-jobs'
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: 'tool-ask-user'
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: 'skill-filesystem'
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: 'tool-skill'
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: 'present'
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: 'command-goal'
+            name: '@deepseek-ai/dsh-command-goal'
+          - id: 'tool-goal'
+            name: '@deepseek-ai/dsh-tool-goal'
+          - id: 'tool-web'
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: 'compaction'
+            name: 'cordis:group'
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: 'compaction-basic'
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: 'command-compact'
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: 'tool-result-pruner'
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024

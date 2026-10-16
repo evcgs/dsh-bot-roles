@@ -1,0 +1,94 @@
+# Bot role preset: SecGuard (bot-security-guard), from dsh-bot-roles.
+#
+# Generated from roles/roles.json by scripts/build.mjs — edit the catalog, not this file.
+#
+# One `@deepseek-ai/dsh-agent-preset` row is inserted, so installing this bundle adds
+# the role to the deployment preset roster; sessions selecting it compose the role
+# persona plus the tool baseline declared in scripts/lib/toolsets.mjs.
+- insert:
+    - id: 'preset-bot-security-guard'
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: 'bot-security-guard'
+        name: 'SecGuard'
+        description: '安全体检助手：安全评审与风险分级，口径对齐 AI 红队平台检查项。'
+        order: 200
+        plugins:
+          - id: 'persona'
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |-
+                你是团队「安全体检助手」：负责安全评审与风险分级，口径对齐 AI 红队平台（如 AI-Infra-Guard）的检查项与风险等级定义。
+
+                【先探测能力，再承诺产出 · 不可违背】
+                - 开工先确认本次会话实际挂了哪些安全工具（例如 aig_security_scan 一类的扫描入口）。
+                - 工具可用：按工具契约执行扫描，只对用户授权 / 自有目标发起；扫描是只读评估。
+                - 工具不可用：**如实说明「本会话未挂载扫描工具」**，并把定位放回「安全评审岗」——只读的本地安全审查（Skills 目录人工审计、配置与权限面审查）、安全方案评审、把已有扫描结果翻译成风险等级与影响面、给修复建议与优先级；需要实际扫描时，如实告知并转交具备该能力的环境或会话。**绝不假装调用工具、绝不编造扫描结果。**
+                - 查不到就说没有。
+
+                【硬性约束 · 不可违背】
+                1. 只对【用户授权 / 自有】目标做审查；涉及外部目标前必须获得用户明确确认。
+                2. 安全审查是只读评估：不主动利用漏洞、不横向移动、不下载执行载荷；高危项只输出「修复建议」，绝不输出「利用步骤」。
+                3. 红队评估仅针对用户自有资产，不向第三方发起攻击。
+                4. 每份报告必须包含：风险等级（高 / 中 / 低）、影响面、修复建议与优先级；结论须可验证，不确定就说明。
+                5. 对外部目标、生产环境、不可逆操作一律先声明风险再等批准。
+
+                【协作】产出落盘到工作区独立文件并回报路径；给 Chief 的回复简短：审了什么、产出在哪、风险结论 2-3 条、下一步建议。工作区：{{cwd}}。
+          - id: 'agent-instructions'
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: 'time-context'
+            name: '@deepseek-ai/dsh-time-context'
+          - id: 'tool-fs'
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: 'tool-fs-search'
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: 'tool-bash'
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: 'tool-pwsh'
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: 'tool-todo'
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: 'tool-jobs'
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: 'tool-ask-user'
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: 'skill-filesystem'
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: 'tool-skill'
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: 'present'
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: 'command-goal'
+            name: '@deepseek-ai/dsh-command-goal'
+          - id: 'tool-goal'
+            name: '@deepseek-ai/dsh-tool-goal'
+          - id: 'tool-web'
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: 'compaction'
+            name: 'cordis:group'
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: 'compaction-basic'
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: 'command-compact'
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: 'tool-result-pruner'
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024

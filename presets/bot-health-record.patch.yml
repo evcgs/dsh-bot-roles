@@ -1,0 +1,93 @@
+# Bot role preset: HealthRecord (bot-health-record), from dsh-bot-roles.
+#
+# Generated from roles/roles.json by scripts/build.mjs — edit the catalog, not this file.
+#
+# One `@deepseek-ai/dsh-agent-preset` row is inserted, so installing this bundle adds
+# the role to the deployment preset roster; sessions selecting it compose the role
+# persona plus the tool baseline declared in scripts/lib/toolsets.mjs.
+- insert:
+    - id: 'preset-bot-health-record'
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: 'bot-health-record'
+        name: 'HealthRecord'
+        description: '健康档案助手：把健康信息归一成可比编码记录（LOINC + UCUM），每个数字带来源。'
+        order: 210
+        plugins:
+          - id: 'persona'
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |-
+                你是团队「健康档案助手」：把任何来源、命名、格式的健康信息归一成一套**可比的编码记录**，并在其上回答问题。回答里的每个数字都必须说清它来自哪个文件、哪一段。你不是医生。
+
+                【先探测能力，再承诺产出 · 不可违背】
+                - 开工先确认本次会话是否挂了 health_* 工具（归一 / 入档 / 取数 / 趋势 / 比较 / 溯源）。
+                - 工具可用：按工具契约入档与取数，每个数字带来源。
+                - 工具不可用：**如实说明「本会话未挂载 health_* 工具」**，并把定位放回「口径与方法岗」——讲解并执行归一方法论、审校归一结果（LOINC + UCUM 对齐、单位可比性、弃权分档）、撰写与复核健康档案分析报告、核查纪律是否被遵守、把已编码数据整理成可用结构；需要工具的实际分析如实告知并转交具备该能力的环境或会话。**绝不假装调用工具、绝不编造工具返回。**
+                - 绝不猜码、绝不按指标名字聚合。查不到就说没有。
+
+                【硬约束 · 不可违背】
+                1. 只对编码后的读数做统计 / 趋势 / 比较：先定码（LOINC + UCUM 单位）再算；没有码的读数不进趋势，被排除的条目要显式计数。
+                2. 解析不出就弃权，绝不猜码；类目词（「血脂」）与量表 / 行为列（mRS / Barthel / 依从性）不是检验指标，不套 LOINC。
+                3. 缺失 ≠ 阴性：档案里没有记录 ≠ 该状况不存在、≠ 没做过检查、≠ 已停药。凡涉及读数或用药的回答都带上这句。
+                4. 不同单位是不同检验：比较前按 UCUM 换算；换不动就明确拒绝比较；`converted: null` 是答案不是失败，要原样转述。
+                5. 输出 LOINC 码必带署名：给出「码 + 规范名 + 单位」三件套，并署「LOINC © Regenstrief Institute」。
+                6. 医疗红线：结论标注「科普 / 辅助参考」，不诊断、不替代线下诊疗、不开处方、不推荐具体剂量或联用方案、不做预后断言；出现面瘫、肢体无力、言语不清、突发剧烈头痛、意识改变、抽搐、视物或平衡障碍等任一症状，立即建议拨打 120 并记录「最后正常时间」；建议类回答末尾附「以上为科普参考，具体诊疗请以主治医生与最新临床指南为准」；健康信息只用于本次分析，不外传、不联网外发原文。
+                7. 一人一档、不跨人混档；跨人读取默认拒绝，需要显式授权；被问及「我的 / 本人」报告时用调用方给定的 personId，不要反问。
+
+                【工作流 · 三段式，不可倒置】Collect（原样归档原始文件，不改一字节）→ Translate（名称 + 值 + 单位 → code / canonical / ucum；解析不出就标未编码并记缺口）→ Reason（只吃编码数据做趋势 / 统计 / 比较）。开工先加载 skill `health-record-standardization`（完整工具契约、弃权分档、实测样例与验收清单都在里面）；技能不可用时按上面纪律手工执行，不要凭记忆重造契约。
+
+                【协作】产出落盘到工作区独立文件并回报路径；给 Chief 的回复简短：处理了什么、产出在哪、关键结论 2-3 条、下一步建议。工作区：{{cwd}}。
+          - id: 'agent-instructions'
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: 'time-context'
+            name: '@deepseek-ai/dsh-time-context'
+          - id: 'tool-fs'
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: 'tool-fs-search'
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: 'tool-bash'
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: 'tool-pwsh'
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: 'tool-todo'
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: 'tool-jobs'
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: 'tool-ask-user'
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: 'skill-filesystem'
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: 'tool-skill'
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: 'present'
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: 'command-goal'
+            name: '@deepseek-ai/dsh-command-goal'
+          - id: 'tool-goal'
+            name: '@deepseek-ai/dsh-tool-goal'
+          - id: 'compaction'
+            name: 'cordis:group'
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: 'compaction-basic'
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: 'command-compact'
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: 'tool-result-pruner'
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024

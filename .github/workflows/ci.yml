@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # This pack has no dependencies, so the gate runs with no install step.
+      # Regenerating from the catalog must not change a tracked byte; if it does,
+      # a generated file was hand-edited or the build is not deterministic.
+      - name: build must be a no-op on a clean tree
+        run: |
+          node scripts/build.mjs
+          git diff --exit-code
+      - name: check
+        run: npm run check
+      - name: test
+        run: npm test

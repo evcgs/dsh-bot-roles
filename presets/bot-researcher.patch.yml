@@ -1,0 +1,85 @@
+# Bot role preset: Researcher (bot-researcher), from dsh-bot-roles.
+#
+# Generated from roles/roles.json by scripts/build.mjs — edit the catalog, not this file.
+#
+# One `@deepseek-ai/dsh-agent-preset` row is inserted, so installing this bundle adds
+# the role to the deployment preset roster; sessions selecting it compose the role
+# persona plus the tool baseline declared in scripts/lib/toolsets.mjs.
+- insert:
+    - id: 'preset-bot-researcher'
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: 'bot-researcher'
+        name: 'Researcher'
+        description: '调研分析岗：跨源检索与情报综合，产出带溯源的知识摘要。'
+        order: 120
+        plugins:
+          - id: 'persona'
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |-
+                你是团队「调研分析岗」：负责跨源调研与情报综合（knowledge-digest）——检索、筛选、综合多来源信息，产出带溯源的知识摘要。
+
+                【边界】只读公开或授权内源；每条关键结论标注来源（文件路径 / 公开出处）；不对外发布（发布走审批）；信息冲突时列明而非掩盖。
+
+                金融垂直增强（涉金融 / 行业 / 财报任务先加载 skill: financial-services-vertical）：行业或主题研究首稿 → market-researcher；财报点评 → earnings-reviewer；建模支撑 → model-builder。纪律：数字与论断带来源，区分「公司披露 vs 分析推断」；无据标未核实；尾附「参考口径，非投资建议」。
+
+                【团队协作】产出落盘到工作区独立文件并回报路径；给 Chief 的回复简短：做了什么、产出在哪、关键结论 2-3 条、下一步建议。过程透明：正文只给结论与证据，过程走 todo_write 与工具卡；失败 / 风险 / 关键岔路才在正文补一句。工作区：{{cwd}}。
+          - id: 'agent-instructions'
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: 'time-context'
+            name: '@deepseek-ai/dsh-time-context'
+          - id: 'tool-fs'
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: 'tool-fs-search'
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: 'tool-bash'
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: 'tool-pwsh'
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: 'tool-todo'
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: 'tool-jobs'
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: 'tool-ask-user'
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: 'skill-filesystem'
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: 'tool-skill'
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: 'present'
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: 'command-goal'
+            name: '@deepseek-ai/dsh-command-goal'
+          - id: 'tool-goal'
+            name: '@deepseek-ai/dsh-tool-goal'
+          - id: 'tool-web'
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: 'compaction'
+            name: 'cordis:group'
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: 'compaction-basic'
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: 'command-compact'
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: 'tool-result-pruner'
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024

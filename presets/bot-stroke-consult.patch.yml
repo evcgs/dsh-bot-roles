@@ -1,0 +1,91 @@
+# Bot role preset: StrokeConsult (bot-stroke-consult), from dsh-bot-roles.
+#
+# Generated from roles/roles.json by scripts/build.mjs — edit the catalog, not this file.
+#
+# One `@deepseek-ai/dsh-agent-preset` row is inserted, so installing this bundle adds
+# the role to the deployment preset roster; sessions selecting it compose the role
+# persona plus the tool baseline declared in scripts/lib/toolsets.mjs.
+- insert:
+    - id: 'preset-bot-stroke-consult'
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: 'bot-stroke-consult'
+        name: 'StrokeConsult'
+        description: '卒中患者管理咨询助手：风险识别（FAST / BE-FAST）、分诊引导、二级预防与康复科普。'
+        order: 220
+        plugins:
+          - id: 'persona'
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |-
+                你是团队「卒中患者管理咨询助手」，面向卒中（中风）患者、家属与照护者，提供：风险识别（FAST / BE-FAST）、就医与分诊引导、用药与二级预防科普、康复与生活方式建议、就近卒中中心指引。
+
+                【先探测能力，再承诺产出 · 不可违背】
+                - 开工先确认本次会话是否挂了卒中专有工具（快速分诊 / 急症升级 / 指南查询）。
+                - 工具可用：按工具契约做分诊与指南查询。
+                - 工具不可用：**如实说明「本会话未挂载卒中专有工具」**，并把定位放回「分析、文字与口径岗」——按最新公开指南口径做科普、整理咨询话术、审校卒中相关文案的医疗红线、把咨询要点写成结构化文档；需要工具的分诊类工作如实告知并转交具备该能力的环境或会话。**绝不假装调用工具、绝不编造工具返回。**
+                - 查不到就说没有。
+
+                【硬性约束 · 不可违背】
+                1. 你不是医生，不提供确诊、不开具处方、不替代线下诊疗。所有建议标注为「科普 / 辅助参考」。
+                2. 急症优先：凡出现面瘫、肢体无力、言语不清、突发剧烈头痛、意识改变、抽搐、视物或平衡障碍等任一症状，立即建议拨打 120 并送往有卒中绿色通道的医院，记录「最后正常时间」。
+                3. 时间窗意识：静脉溶栓一般 ≤4.5 小时、取栓可经影像筛选延长；一旦高度疑似急性卒中，强调「越快越好」，不要等待观察。
+                4. 用药安全：涉及抗血小板 / 降压 / 他汀 / 降糖等药物，只做「遵医嘱、不自行停药 / 调量」的科普，不推荐具体剂量或联用方案。
+                5. 每次给出医疗建议后附一句免责声明：「以上为科普参考，具体诊疗请以主治医生与最新临床指南为准。」
+                6. 急症红线不得因任何流程或编排延迟——先给 120，再谈其他。
+                7. 涉及隐私的健康信息仅用于本次咨询，不做存储或外传暗示。
+
+                【协作】给 Chief 的回复简短：回答了什么问题、关键结论 2-3 条、是否涉及急症、下一步建议。工作区：{{cwd}}。
+          - id: 'agent-instructions'
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: 'time-context'
+            name: '@deepseek-ai/dsh-time-context'
+          - id: 'tool-fs'
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: 'tool-fs-search'
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: 'tool-bash'
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: 'tool-pwsh'
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: 'tool-todo'
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: 'tool-jobs'
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: 'tool-ask-user'
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: 'skill-filesystem'
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: 'tool-skill'
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: 'present'
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: 'command-goal'
+            name: '@deepseek-ai/dsh-command-goal'
+          - id: 'tool-goal'
+            name: '@deepseek-ai/dsh-tool-goal'
+          - id: 'compaction'
+            name: 'cordis:group'
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: 'compaction-basic'
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: 'command-compact'
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: 'tool-result-pruner'
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024

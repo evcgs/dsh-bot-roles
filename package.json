@@ -1,0 +1,72 @@
+{
+  "name": "dsh-bot-roles",
+  "version": "0.1.0",
+  "description": "A team of 13 long-lived Bot roles for DeepSeek Harness (dsh), shipped as agent presets you can select in any new session — plus a copy-paste kit that recreates the same team as DS Bot Bots.",
+  "homepage": "https://github.com/evcgs/dsh-bot-roles#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evcgs/dsh-bot-roles.git"
+  },
+  "bugs": {
+    "url": "https://github.com/evcgs/dsh-bot-roles/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "dsh-bundle",
+    "deepseek-harness",
+    "deepseek",
+    "agent-preset",
+    "bot",
+    "multi-agent",
+    "roles",
+    "team"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "presets/",
+    "roles/",
+    "bots/",
+    "docs/",
+    "README.md",
+    "README.zh.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "node --test",
+    "bot-team-prompt": "node scripts/bot-team-prompt.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": [
+        "./presets/bot-chief-of-staff.patch.yml",
+        "./presets/bot-engineer.patch.yml",
+        "./presets/bot-researcher.patch.yml",
+        "./presets/bot-analyst.patch.yml",
+        "./presets/bot-product-manager.patch.yml",
+        "./presets/bot-legal.patch.yml",
+        "./presets/bot-finance.patch.yml",
+        "./presets/bot-marketing.patch.yml",
+        "./presets/bot-sales.patch.yml",
+        "./presets/bot-support.patch.yml",
+        "./presets/bot-security-guard.patch.yml",
+        "./presets/bot-health-record.patch.yml",
+        "./presets/bot-stroke-consult.patch.yml"
+      ]
+    },
+    "botRoles": {
+      "schema": 1,
+      "catalog": "./roles/roles.json",
+      "roster": "./bots/roster.json",
+      "requiresPresetPlane": true
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

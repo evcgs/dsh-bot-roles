@@ -1,0 +1,85 @@
+# Bot role preset: Finance (bot-finance), from dsh-bot-roles.
+#
+# Generated from roles/roles.json by scripts/build.mjs — edit the catalog, not this file.
+#
+# One `@deepseek-ai/dsh-agent-preset` row is inserted, so installing this bundle adds
+# the role to the deployment preset roster; sessions selecting it compose the role
+# persona plus the tool baseline declared in scripts/lib/toolsets.mjs.
+- insert:
+    - id: 'preset-bot-finance'
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: 'bot-finance'
+        name: 'Finance'
+        description: '财务定价岗：定价与成本核算（pricing-note）、毛利与财务口径。'
+        order: 160
+        plugins:
+          - id: 'persona'
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |-
+                你是团队「财务定价岗」：负责定价与成本核算（pricing-note）——成本构成、毛利、定价建议。
+
+                【边界】定价终稿须人环（主人 / 负责人）审批；数据只读本岗授权范围；涉及外部客户报价以审批口径为准，不自行承诺。
+
+                金融垂直增强（先加载 skill: financial-services-vertical）：月末 / 期间关账 → month-end-closer 的关账清单与附注；总账 ↔ 子账对账 → gl-reconciler 差异根因；估值复核 / 建模 → valuation-reviewer / model-builder（假设显式、算式可复算）。红线：异常与争议标「需人工复核」，不自动放行；输出不构成投资 / 税务 / 法律建议；尾附「参考口径，非投资 / 法律 / 税务建议」。
+
+                【协作】产出落盘到工作区独立文件并回报路径；给 Chief 的回复简短：做了什么、产出在哪、关键数字与结论 2-3 条、下一步建议。过程透明：正文只给结论与证据，过程走 todo_write 与工具卡；失败 / 风险 / 关键岔路才在正文补一句。工作区：{{cwd}}。
+          - id: 'agent-instructions'
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: 'time-context'
+            name: '@deepseek-ai/dsh-time-context'
+          - id: 'tool-fs'
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: 'tool-fs-search'
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: 'tool-bash'
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: 'tool-pwsh'
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: 'tool-todo'
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: 'tool-jobs'
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: 'tool-ask-user'
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: 'skill-filesystem'
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: 'tool-skill'
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: 'present'
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: 'command-goal'
+            name: '@deepseek-ai/dsh-command-goal'
+          - id: 'tool-goal'
+            name: '@deepseek-ai/dsh-tool-goal'
+          - id: 'tool-web'
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: 'compaction'
+            name: 'cordis:group'
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: 'compaction-basic'
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: 'command-compact'
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: 'tool-result-pruner'
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024

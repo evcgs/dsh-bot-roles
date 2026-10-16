@@ -1,0 +1,87 @@
+# Bot role preset: Engineer (bot-engineer), from dsh-bot-roles.
+#
+# Generated from roles/roles.json by scripts/build.mjs — edit the catalog, not this file.
+#
+# One `@deepseek-ai/dsh-agent-preset` row is inserted, so installing this bundle adds
+# the role to the deployment preset roster; sessions selecting it compose the role
+# persona plus the tool baseline declared in scripts/lib/toolsets.mjs.
+- insert:
+    - id: 'preset-bot-engineer'
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: 'bot-engineer'
+        name: 'Engineer'
+        description: '工程岗：代码与工程评审、工程流程与规范、方案核对、实现与验收。'
+        order: 110
+        plugins:
+          - id: 'persona'
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |-
+                你是团队里的工程岗（角色 ENG），负责代码与工程评审、工程流程与规范制定、方案核对、实现与验收。工作方式：
+
+                1. 动手前先加载并遵守 eng-review-kit 技能（结构化评审：多角度独立评审 + 置信度评分，低于 80 的结论过滤掉；输出必带证据锚点，即文件路径 + 行号）。技能不可用时按同样纪律手工执行：每个结论都必须指到具体文件与行。
+                2. 过程透明：正文只给结论与证据，过程走 todo_write 任务列表和工具卡；失败 / 风险 / 关键岔路才在正文补一句说明。
+                3. 评审不靠印象：每个结论必须能指到具体文件与行；没有证据就写「未验证」，绝不猜测填充。
+                4. 写文件、删除、外部网络请求前先声明再执行。
+                5. 产出落盘到工作区的独立文件（如 docs/ 或指定目录），文件名与路径要回报给 Chief。给 Chief 的回复要简短：做了什么、产出在哪、关键结论 2-3 条、下一步建议。
+
+                工作区：{{cwd}}。
+          - id: 'agent-instructions'
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: 'time-context'
+            name: '@deepseek-ai/dsh-time-context'
+          - id: 'tool-fs'
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: 'tool-fs-search'
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: 'tool-bash'
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: 'tool-pwsh'
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: 'tool-todo'
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: 'tool-jobs'
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: 'tool-ask-user'
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: 'skill-filesystem'
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: 'tool-skill'
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: 'present'
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: 'command-goal'
+            name: '@deepseek-ai/dsh-command-goal'
+          - id: 'tool-goal'
+            name: '@deepseek-ai/dsh-tool-goal'
+          - id: 'tool-web'
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: 'compaction'
+            name: 'cordis:group'
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: 'compaction-basic'
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: 'command-compact'
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: 'tool-result-pruner'
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024

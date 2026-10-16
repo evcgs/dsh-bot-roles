@@ -1,0 +1,12 @@
+# Verification scratch space (tools/verify-composition.mjs)
+.verify/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Editors / OS
+.DS_Store
+*.swp
+.idea/
+.vscode/

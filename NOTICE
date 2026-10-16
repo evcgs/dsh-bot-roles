@@ -1,0 +1,28 @@
+dsh-bot-roles
+Copyright (c) 2026 the dsh-bot-roles contributors
+
+This product is a bundle for DeepSeek Harness (dsh). It ships no third-party
+source code and no dependencies. Its preset declarations reference packages
+published by DeepSeek as part of DeepSeek Harness:
+
+  @deepseek-ai/dsh-agent-preset
+  @deepseek-ai/dsh-persona
+  @deepseek-ai/dsh-agent-instructions
+  @deepseek-ai/dsh-time-context
+  @deepseek-ai/dsh-tool-fs            @deepseek-ai/dsh-tool-fs-search
+  @deepseek-ai/dsh-tool-bash          @deepseek-ai/dsh-tool-pwsh
+  @deepseek-ai/dsh-tool-todo          @deepseek-ai/dsh-tool-jobs
+  @deepseek-ai/dsh-tool-ask-user      @deepseek-ai/dsh-tool-skill
+  @deepseek-ai/dsh-tool-web           @deepseek-ai/dsh-tool-present
+  @deepseek-ai/dsh-command-goal       @deepseek-ai/dsh-tool-goal
+  @deepseek-ai/dsh-skill-filesystem
+  @deepseek-ai/dsh-compaction-basic   @deepseek-ai/dsh-command-compact
+  @deepseek-ai/dsh-compaction-tool-result-pruner
+
+Those packages remain under their own licenses and are not redistributed here.
+DeepSeek Harness, DeepSeek, and DS Bot are names of their respective owners;
+this project is an independent, unofficial role pack and is not endorsed by them.
+
+The role prose under roles/ and the generated files under presets/, bots/, and
+docs/bot-team-prompt.md are original text contributed by this project's authors
+and licensed under the MIT License in LICENSE.
